@@ -1,0 +1,85 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "urban-seg"
+version = "0.1.0"
+description = "Semantic segmentation of urban traffic scenes"
+requires-python = ">=3.10"
+dependencies = [
+    # Core ML
+    "torch>=2.2.0",
+    "torchvision>=0.17.0",
+    "pytorch-lightning>=2.2.0",
+    "torchmetrics>=1.3.0",
+    # Transformers / model zoo
+    "transformers>=4.38.0",
+    "timm>=0.9.16",
+    # Data & augmentation
+    "albumentations>=1.4.0",
+    "opencv-python-headless>=4.9.0",
+    "numpy>=1.26.0",
+    "pillow>=10.2.0",
+    # Config management
+    "hydra-core>=1.3.2",
+    "omegaconf>=2.3.0",
+    # Experiment tracking
+    "mlflow>=2.11.0",
+    "wandb>=0.16.0",
+    # Deployment / serving
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.28.0",
+    "onnx>=1.16.0",
+    "onnxruntime-gpu>=1.17.0",
+    "python-multipart>=0.0.9",
+    # Monitoring
+    "prometheus-client>=0.20.0",
+    "opentelemetry-sdk>=1.23.0",
+    "opentelemetry-exporter-otlp>=1.23.0",
+    # Utilities
+    "rich>=13.7.0",
+    "tqdm>=4.66.0",
+    "einops>=0.7.0",
+    "scipy>=1.12.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.23.0",
+    "httpx>=0.27.0",
+    "ruff>=0.3.0",
+    "mypy>=1.9.0",
+]
+notebook = [
+    "jupyter>=1.0.0",
+    "matplotlib>=3.8.0",
+    "seaborn>=0.13.0",
+    "ipywidgets>=8.1.0",
+]
+
+[project.scripts]
+urban-train  = "urban_seg.scripts.train:main"
+urban-eval   = "urban_seg.scripts.evaluate:main"
+urban-export = "urban_seg.scripts.export_model:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+src = ["src"]
+line-length = 100
+target-version = "py310"
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+strict = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+asyncio_mode = "auto"

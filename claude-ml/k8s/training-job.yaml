@@ -1,0 +1,52 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: urban-seg-train
+  namespace: urban-seg
+spec:
+  parallelism: 4          # number of worker Pods
+  completions: 4
+  completionMode: Indexed
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: trainer
+          image: your-registry/urban-seg:train
+          command: ["/bin/bash", "-c"]
+          args:
+            - >
+              python scripts/train.py
+              +training=distributed
+              training.trainer.num_nodes=${NUM_NODES}
+          env:
+            - name: MASTER_ADDR
+              value: "urban-seg-train-0.urban-seg-train"
+            - name: MASTER_PORT
+              value: "29500"
+            - name: NUM_NODES
+              value: "4"
+            - name: MLFLOW_TRACKING_URI
+              valueFrom:
+                secretKeyRef:
+                  name: urban-seg-secrets
+                  key: mlflow-uri
+          resources:
+            limits:
+              nvidia.com/gpu: "8"
+            requests:
+              cpu: "16"
+              memory: "64Gi"
+          volumeMounts:
+            - name: data-pvc
+              mountPath: /data
+              readOnly: true
+            - name: output-pvc
+              mountPath: /workspace/outputs
+      volumes:
+        - name: data-pvc
+          persistentVolumeClaim:
+            claimName: cityscapes-data
+        - name: output-pvc
+          persistentVolumeClaim:
+            claimName: training-outputs

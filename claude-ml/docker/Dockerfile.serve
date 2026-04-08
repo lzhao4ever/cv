@@ -1,0 +1,28 @@
+FROM nvcr.io/nvidia/cuda:12.3.2-cudnn9-runtime-ubuntu22.04
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.10 python3-pip libgl1-mesa-glx libglib2.0-0 && \
+    rm -rf /var/lib/apt/lists/*
+
+# Serving-only dependencies (no training stack)
+RUN pip install --no-cache-dir \
+    fastapi>=0.110.0 \
+    uvicorn[standard]>=0.28.0 \
+    onnxruntime-gpu>=1.17.0 \
+    pillow>=10.2.0 \
+    numpy>=1.26.0 \
+    prometheus-client>=0.20.0 \
+    python-multipart>=0.0.9
+
+COPY src/urban_seg/deployment/ /app/urban_seg/deployment/
+COPY src/urban_seg/__init__.py /app/urban_seg/__init__.py
+
+# Model artifact mounted at runtime via -v or K8s PVC
+ENV MODEL_PATH=/models/model.onnx
+ENV PYTHONPATH=/app
+
+EXPOSE 8080 9090
+
+CMD ["uvicorn", "urban_seg.deployment.server:app", "--host", "0.0.0.0", "--port", "8080"]

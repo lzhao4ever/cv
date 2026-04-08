@@ -1,0 +1,50 @@
+# @package _global_.data
+_target_: urban_seg.data.datamodule.CityscapesDataModule
+
+root: ${paths.data_root}/cityscapes
+num_classes: 19
+ignore_index: 255
+image_size: [512, 1024]   # H x W
+
+batch_size: 8
+num_workers: 4
+pin_memory: true
+
+# Class names (Cityscapes 19-class eval)
+class_names:
+  - road
+  - sidewalk
+  - building
+  - wall
+  - fence
+  - pole
+  - traffic light
+  - traffic sign
+  - vegetation
+  - terrain
+  - sky
+  - person
+  - rider
+  - car
+  - truck
+  - bus
+  - train
+  - motorcycle
+  - bicycle
+
+# RGB mean/std from Cityscapes train split
+mean: [0.2869, 0.3251, 0.2839]
+std:  [0.1870, 0.1902, 0.1872]
+
+augmentation:
+  random_resize_crop:
+    scale: [0.5, 2.0]
+    ratio: [0.75, 1.333]
+  horizontal_flip_p: 0.5
+  color_jitter:
+    brightness: 0.4
+    contrast: 0.4
+    saturation: 0.2
+    hue: 0.1
+    p: 0.5
+  random_grayscale_p: 0.1

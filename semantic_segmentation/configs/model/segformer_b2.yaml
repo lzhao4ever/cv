@@ -1,0 +1,14 @@
+# @package _global_.model
+_target_: urban_seg.models.segmentation_model.SegmentationModel
+
+backbone:
+  name: mit_b2                      # MixTransformer from SegFormer family
+  pretrained: true
+  pretrained_weights: imagenet
+
+head:
+  name: segformer_head
+  embed_dim: 768
+  dropout: 0.1
+
+num_classes: ${data.num_classes}

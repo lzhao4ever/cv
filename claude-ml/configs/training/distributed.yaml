@@ -1,0 +1,15 @@
+# @package _global_.training
+# Extends default — run with: train.py +training=distributed
+defaults:
+  - default
+
+# Scale LR linearly with effective batch size
+optimizer:
+  lr: 6e-5   # base lr; LitModule scales by num_gpus * accumulate_grad_batches
+
+trainer:
+  strategy: ddp_find_unused_parameters_false
+  devices: -1                # use all visible GPUs
+  num_nodes: ${oc.env:NUM_NODES,1}
+  accumulate_grad_batches: 2
+  sync_batchnorm: true

@@ -1,0 +1,85 @@
+version: "3.9"
+
+services:
+  # ---------------------------------------------------------------------------
+  # Training (single-node, multi-GPU)
+  # ---------------------------------------------------------------------------
+  train:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.train
+    image: urban-seg:train
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - DATA_ROOT=/data
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    volumes:
+      - ${DATA_ROOT:-./data}:/data:ro
+      - ./outputs:/workspace/outputs
+    command: ["model=segformer_b2", "training.max_epochs=160"]
+    depends_on:
+      - mlflow
+
+  # ---------------------------------------------------------------------------
+  # Inference server
+  # ---------------------------------------------------------------------------
+  serve:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.serve
+    image: urban-seg:serve
+    runtime: nvidia
+    ports:
+      - "8080:8080"   # REST API
+      - "9090:9090"   # Prometheus metrics
+    environment:
+      - MODEL_PATH=/models/model.onnx
+      - NVIDIA_VISIBLE_DEVICES=0
+    volumes:
+      - ./exports:/models:ro
+
+  # ---------------------------------------------------------------------------
+  # MLflow tracking server
+  # ---------------------------------------------------------------------------
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.11.0
+    ports:
+      - "5000:5000"
+    environment:
+      - MLFLOW_BACKEND_STORE_URI=sqlite:///mlflow/mlflow.db
+      - MLFLOW_DEFAULT_ARTIFACT_ROOT=/mlflow/artifacts
+    volumes:
+      - mlflow-data:/mlflow
+    command: >
+      mlflow server
+        --backend-store-uri sqlite:///mlflow/mlflow.db
+        --default-artifact-root /mlflow/artifacts
+        --host 0.0.0.0
+        --port 5000
+
+  # ---------------------------------------------------------------------------
+  # Prometheus
+  # ---------------------------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:v2.50.1
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command: ["--config.file=/etc/prometheus/prometheus.yml"]
+
+  # ---------------------------------------------------------------------------
+  # Grafana
+  # ---------------------------------------------------------------------------
+  grafana:
+    image: grafana/grafana:10.3.3
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+
+volumes:
+  mlflow-data:
