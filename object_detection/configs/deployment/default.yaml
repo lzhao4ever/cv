@@ -1,0 +1,16 @@
+format: onnx
+opset: 17
+dynamic_axes:
+  images:
+    0: batch_size
+simplify: true
+half: false
+confidence_threshold: 0.3
+iou_threshold: 0.6  # used only for non-DETR heads
+
+server:
+  host: "0.0.0.0"
+  port: 8080
+  workers: 1
+  max_batch_size: 8
+  timeout_s: 30.0

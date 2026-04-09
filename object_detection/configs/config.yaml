@@ -1,0 +1,19 @@
+defaults:
+  - data: coco
+  - model: rtdetr_r50
+  - training: default
+  - deployment: default
+  - _self_
+
+project:
+  name: urban-det
+  seed: 42
+  output_dir: outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  experiment_name: ${project.name}-${model.name}
+
+hydra:
+  run:
+    dir: ${project.output_dir}
+  sweep:
+    dir: multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    subdir: ${hydra.job.num}

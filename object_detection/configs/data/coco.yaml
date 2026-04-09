@@ -1,0 +1,31 @@
+name: coco
+root: /data/coco
+num_classes: 80
+class_names: null  # loaded from annotations
+
+train_split: train2017
+val_split: val2017
+test_split: val2017  # COCO test2017 has no public labels
+
+image_size: [640, 640]
+batch_size: 16
+num_workers: 8
+pin_memory: true
+persistent_workers: true
+
+# Augmentation
+augmentation:
+  mosaic_prob: 1.0
+  mixup_prob: 0.15
+  copy_paste_prob: 0.3
+  hsv_h: 0.015
+  hsv_s: 0.7
+  hsv_v: 0.4
+  degrees: 0.0
+  translate: 0.1
+  scale: 0.5
+  shear: 0.0
+  perspective: 0.0
+  flipud: 0.0
+  fliplr: 0.5
+  close_mosaic_epochs: 10  # disable mosaic for last N epochs

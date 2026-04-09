@@ -1,0 +1,42 @@
+name: nuscenes
+root: /data/nuscenes
+num_classes: 10
+class_names:
+  - car
+  - truck
+  - bus
+  - trailer
+  - construction_vehicle
+  - pedestrian
+  - motorcycle
+  - bicycle
+  - traffic_cone
+  - barrier
+
+version: v1.0-trainval
+cameras:
+  - CAM_FRONT
+  - CAM_FRONT_LEFT
+  - CAM_FRONT_RIGHT
+  - CAM_BACK
+  - CAM_BACK_LEFT
+  - CAM_BACK_RIGHT
+
+image_size: [900, 1600]  # native nuScenes resolution
+batch_size: 8
+num_workers: 8
+pin_memory: true
+persistent_workers: true
+
+# Visibility filtering: 0=fully occluded, 4=fully visible
+min_visibility: 2
+
+augmentation:
+  mosaic_prob: 0.0  # disabled for AV — preserves sensor geometry
+  fliplr: 0.5
+  scale: 0.3
+  translate: 0.1
+  hsv_h: 0.01
+  hsv_s: 0.5
+  hsv_v: 0.3
+  close_mosaic_epochs: 0

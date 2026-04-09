@@ -1,0 +1,33 @@
+name: rtdetr_r101
+backbone:
+  type: resnet101
+  pretrained: true
+  freeze_at: 0
+  out_indices: [1, 2, 3]
+
+encoder:
+  type: HybridEncoder
+  in_channels: [512, 1024, 2048]
+  hidden_dim: 256
+  use_encoder_idx: [2]
+  num_encoder_layers: 1
+  nhead: 8
+  dim_feedforward: 1024
+  dropout: 0.0
+  enc_act: gelu
+  expansion: 1.0
+  depth_mult: 1.0
+
+decoder:
+  type: RTDETRDecoder
+  hidden_dim: 256
+  num_queries: 300
+  num_decoder_layers: 6
+  nhead: 8
+  dim_feedforward: 1024
+  dropout: 0.0
+  num_denoising: 100
+  label_noise_ratio: 0.5
+  box_noise_scale: 1.0
+  eval_spatial_size: ${data.image_size}
+  eval_idx: -1

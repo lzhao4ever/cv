@@ -1,0 +1,19 @@
+FROM nvcr.io/nvidia/pytorch:24.05-py3
+
+WORKDIR /workspace
+
+# System deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1 libglib2.0-0 zip unzip curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install project
+COPY pyproject.toml ./
+RUN pip install --no-cache-dir -e ".[dev]"
+
+COPY . .
+
+ENV PYTHONPATH=/workspace/src
+ENV HYDRA_FULL_ERROR=1
+
+ENTRYPOINT ["python", "scripts/train.py"]

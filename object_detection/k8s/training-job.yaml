@@ -1,0 +1,58 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: urban-det-train
+  namespace: urban-det
+spec:
+  completions: 4        # num_nodes
+  parallelism: 4
+  completionMode: Indexed
+  template:
+    spec:
+      restartPolicy: OnFailure
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: coco-pvc
+        - name: outputs
+          persistentVolumeClaim:
+            claimName: outputs-pvc
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 8Gi
+      containers:
+        - name: trainer
+          image: your-registry/urban-det-train:latest
+          args:
+            - training=distributed
+            - training.num_nodes=4
+          env:
+            - name: MASTER_ADDR
+              value: "urban-det-train-0.urban-det-train"
+            - name: MASTER_PORT
+              value: "29500"
+            - name: NODE_RANK
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.annotations['batch.kubernetes.io/job-completion-index']
+            - name: MLFLOW_TRACKING_URI
+              value: "http://mlflow.urban-det.svc.cluster.local:5000"
+          resources:
+            requests:
+              cpu: "16"
+              memory: "64Gi"
+              nvidia.com/gpu: "8"
+            limits:
+              nvidia.com/gpu: "8"
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: outputs
+              mountPath: /workspace/outputs
+            - name: shm
+              mountPath: /dev/shm
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule

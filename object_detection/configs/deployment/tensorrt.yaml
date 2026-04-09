@@ -1,0 +1,20 @@
+defaults:
+  - default
+
+format: tensorrt
+precision: fp16  # fp16 | int8 | fp32
+workspace_gb: 4
+
+calibration:
+  algorithm: entropy2  # entropy2 | minmax | percentile
+  batch_size: 8
+  num_calib_batches: 200
+  cache_file: calib_cache.bin
+
+# Jetson Orin / NVIDIA Drive specific
+dla_core: -1   # -1 = GPU only; 0 or 1 = use DLA core
+gpu_fallback: true
+
+# Profiling
+min_timing_iterations: 8
+avg_timing_iterations: 8

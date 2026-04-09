@@ -1,0 +1,24 @@
+# Jetson Orin / NVIDIA Drive Orin — L4T base image
+# Build on host, copy to target, or use Docker buildx for cross-compile
+FROM nvcr.io/nvidia/l4t-pytorch:r36.2.0-pth2.3-py3
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libopencv-dev python3-opencv \
+    && rm -rf /var/lib/apt/lists/*
+
+# TensorRT is pre-installed in L4T image
+# pycuda
+RUN pip3 install --no-cache-dir pycuda numpy
+
+COPY src/ src/
+ENV PYTHONPATH=/app/src
+
+# ROS2 Humble integration (optional)
+# Uncomment if ROS2 is installed in the base image or overlaid:
+# COPY ros2_ws/ /ros2_ws/
+# SHELL ["/bin/bash", "-c"]
+# RUN source /opt/ros/humble/setup.bash && colcon build --packages-select urban_det_ros2
+
+CMD ["python3", "-m", "urban_det.deployment.edge.tensorrt_infer"]

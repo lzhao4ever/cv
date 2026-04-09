@@ -1,0 +1,21 @@
+defaults:
+  - default
+
+# Multi-node DDP — override for cluster
+strategy: ddp
+devices: 8
+num_nodes: 4  # 4 nodes × 8 GPUs = 32 GPUs total
+
+# Linear LR scaling: base_lr × (batch_size × gpus / base_batch)
+# base: lr=1e-4 @ batch_size=16 × 1 GPU
+# 16 × 32 GPUs = 512 total batch → multiply lr by 32
+# handled automatically in lit_module via world_size scaling
+
+accumulate_grad_batches: 1
+precision: "bf16-mixed"
+
+# NCCL tuning for multi-node
+env:
+  NCCL_IB_DISABLE: "0"
+  NCCL_NET_GDR_LEVEL: "2"
+  NCCL_DEBUG: "WARN"

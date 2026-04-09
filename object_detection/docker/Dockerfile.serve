@@ -1,0 +1,19 @@
+FROM nvcr.io/nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 python3.11-pip libgl1 libglib2.0-0 \
+    && ln -s /usr/bin/python3.11 /usr/bin/python \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY pyproject.toml ./
+RUN pip install --no-cache-dir onnxruntime-gpu fastapi uvicorn[standard] \
+    prometheus-client opencv-python-headless Pillow numpy
+
+COPY src/ src/
+ENV PYTHONPATH=/app/src
+
+EXPOSE 8080
+
+CMD ["python", "-m", "urban_det.deployment.server", "--model-path", "/models/model.onnx"]

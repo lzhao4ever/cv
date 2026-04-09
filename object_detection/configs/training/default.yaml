@@ -1,0 +1,44 @@
+max_epochs: 72
+warmup_epochs: 3
+gradient_clip_val: 0.1
+accumulate_grad_batches: 1
+precision: "16-mixed"  # AMP
+benchmark: true
+
+optimizer:
+  type: AdamW
+  lr: 1.0e-4
+  weight_decay: 1.0e-4
+  betas: [0.9, 0.999]
+
+lr_scheduler:
+  type: MultiStepLR
+  milestones: [54]  # drop at 75% of training
+  gamma: 0.1
+
+# Backbone uses lower LR (standard for DETRs)
+backbone_lr_multiplier: 0.1
+
+callbacks:
+  model_checkpoint:
+    monitor: val/mAP
+    mode: max
+    save_top_k: 3
+    save_last: true
+    filename: "epoch={epoch:03d}-mAP={val/mAP:.4f}"
+  early_stopping:
+    monitor: val/mAP
+    patience: 20
+    mode: max
+  lr_monitor:
+    logging_interval: step
+
+# Logging
+log_every_n_steps: 50
+val_check_interval: 1.0
+
+# Distributed
+strategy: auto  # set to "ddp" for multi-GPU
+sync_batchnorm: true
+devices: 1
+num_nodes: 1
