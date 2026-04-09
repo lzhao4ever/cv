@@ -1,0 +1,13 @@
+# @package _global_.model
+_target_: urban_seg.models.segmentation_model.SegmentationModel
+
+backbone:
+  name: resnet50
+  pretrained: true
+
+head:
+  name: unet_head
+  decoder_channels: [256, 128, 64, 32]
+  dropout: 0.1
+
+num_classes: ${data.num_classes}

@@ -8,11 +8,12 @@ import torch.nn.functional as F
 from omegaconf import DictConfig
 
 from .backbones import build_backbone
-from .heads import DeepLabV3PlusHead, SegFormerHead
+from .heads import DeepLabV3PlusHead, SegFormerHead, UNetHead
 
 _HEAD_REGISTRY = {
     "segformer_head": SegFormerHead,
     "deeplab_head": DeepLabV3PlusHead,
+    "unet_head": UNetHead,
 }
 
 
