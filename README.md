@@ -1,5 +1,7 @@
 # Computer Vision Projects
 
 ## Semantic Segmentation
+cv/semantic_segmentation
 
-## Object Detection 
+## Object Detection
+cv/object_detection

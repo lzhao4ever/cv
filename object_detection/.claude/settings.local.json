@@ -1,7 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Read(//content/drive/MyDrive/Code/cv/semantic_segmentation/tests/**)"
-    ]
-  }
-}
